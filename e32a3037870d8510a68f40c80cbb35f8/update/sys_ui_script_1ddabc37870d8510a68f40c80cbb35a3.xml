@@ -23,7 +23,9 @@ var clearButton = document.querySelector('#nav_filter_controls');
 var defaultNavigatorText = window.filterNavigatorPlaceholder;
 
 /* Set the navigator text */
-function setNavigatorText(text) {
+function setNavigatorText() {
+	var text = window.searchParent ? getSearchNavigatorText() : defaultNavigatorText;
+	
     nav.querySelector('label[for="filter"]').innerText = text;
     nav.querySelector('#filter').setAttribute('placeholder', text);
 }
@@ -36,9 +38,7 @@ function getSearchNavigatorText() {
 /* Clear any parent search. Set the query to undefined, reset navigator text, and remove ng-hide class on all modules. */
 function clearSearchParent() {
     var modules = nav.querySelectorAll('li.sn-widget');
-    window.searchParent = undefined;
-
-    setNavigatorText(defaultNavigatorText);
+    setSearchParent(undefined);
 
     for (var index in modules) {
         var module = modules[index];
@@ -49,7 +49,7 @@ function clearSearchParent() {
 /* Set an active parent search query and update the nav text. */
 function setSearchParent(searchParent) {
     window.searchParent = searchParent;
-    setNavigatorText(getSearchNavigatorText());
+    setNavigatorText();
 }
 
 /**
@@ -130,14 +130,14 @@ function navFilterExtension(val, msg) {
         <sys_created_by>admin</sys_created_by>
         <sys_created_on>2022-01-21 08:46:40</sys_created_on>
         <sys_id>1ddabc37870d8510a68f40c80cbb35a3</sys_id>
-        <sys_mod_count>3</sys_mod_count>
+        <sys_mod_count>5</sys_mod_count>
         <sys_name>NavFilterExtension</sys_name>
         <sys_package display_value="Nested Navigator Search" source="e32a3037870d8510a68f40c80cbb35f8">e32a3037870d8510a68f40c80cbb35f8</sys_package>
         <sys_policy/>
         <sys_scope display_value="Nested Navigator Search">e32a3037870d8510a68f40c80cbb35f8</sys_scope>
         <sys_update_name>sys_ui_script_1ddabc37870d8510a68f40c80cbb35a3</sys_update_name>
         <sys_updated_by>admin</sys_updated_by>
-        <sys_updated_on>2022-01-21 09:10:27</sys_updated_on>
+        <sys_updated_on>2022-01-21 15:34:01</sys_updated_on>
         <ui_type>0</ui_type>
         <use_scoped_format>false</use_scoped_format>
     </sys_ui_script>
