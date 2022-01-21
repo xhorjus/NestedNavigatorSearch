@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?><record_update table="sys_ui_script">
+    <sys_ui_script action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <description/>
+        <global>true</global>
+        <name>NavFilterExtension</name>
+        <script><![CDATA[/*
+ * This function is called before default nav filtering is done.
+ * If function returns false, default nav filtering happens next.
+ * If it returns true, no more nav filtering is done for current keystroke.
+ *
+ * This script allows slightly alters the behavior of the application navigator.
+ * In particular, if the some search string is entered and ended with {searchChar},
+ * (a comma by default), it visibly sets a 'parent module' search restriction on that module.
+ * This search string is case-insensitive and partial, so if I want to look for "Properties" 
+ * only in the "Field Service" module, I would for instance enter "field," and then "proper". 
+ * In order to lift the parent module search, either enter just a blank comma or use the X button
+ * in the search bar at any time.
+ */
+var searchChar = ',';
+var nav = parent.document.getElementById('nav_west');
+var clearButton = document.querySelector('#nav_filter_controls');
+var defaultNavigatorText = window.filterNavigatorPlaceholder;
+
+/* Set the navigator text */
+function setNavigatorText(text) {
+    nav.querySelector('label[for="filter"]').innerText = text;
+    nav.querySelector('#filter').setAttribute('placeholder', text);
+}
+
+/* Get navigator text for an active search */
+function getSearchNavigatorText() {
+    return 'Search in module: ' + window.searchParent;
+}
+
+/* Clear any parent search. Set the query to undefined, reset navigator text, and remove ng-hide class on all modules. */
+function clearSearchParent() {
+    var modules = nav.querySelectorAll('li.sn-widget');
+    window.searchParent = undefined;
+
+    setNavigatorText(defaultNavigatorText);
+
+    for (var index in modules) {
+        var module = modules[index];
+        module && module.classList && module.classList.remove('ng-hide');
+    }
+}
+
+/* Set an active parent search query and update the nav text. */
+function setSearchParent(searchParent) {
+    window.searchParent = searchParent;
+    setNavigatorText(getSearchNavigatorText());
+}
+
+/**
+ * Apply a parent search filter. 
+ * Loop over each module and if they do not include our text in the label,
+ * hide them. 
+ */
+function applySearchParentFilter() {
+    var modules = nav.querySelectorAll('li.sn-widget');
+
+    /* Hide respective modules */
+    for (var index in modules) {
+        var module = modules[index];
+
+        var moduleLabelNode = module && module.querySelector && (
+            module.querySelector('.app-node span') || // for regular modules
+            module.querySelector('.sn-aside-group-title') // for favorites
+        );
+
+        /* If module is empty, undefined, etc, go to next. */
+        if (!moduleLabelNode) {
+            continue;
+        }
+
+        /* Remove or hide depending on presence of search query in label */
+        var moduleLabel = moduleLabelNode.innerText;
+
+        if (!moduleLabel.toLowerCase().includes(window.searchParent.toLowerCase())) {
+            module.classList.add('ng-hide');
+        } else {
+            module.classList.remove('ng-hide');
+        }
+    }
+}
+
+/* Add the listener to the 'clear filter' button which also removes the search parent. */
+function addListenerRemoveSearchParentOnClearFilterButton() {
+    function clear(e) {
+        clearSearchParent();
+
+        // no longer call this on clear
+        // this is important because we call the clear button later in the search parent set-up, 
+        // and we do not want to imediately undefine the search parent.
+        clearButton.removeEventListener('click', clear);
+    }
+
+    clearButton.addEventListener('click', clear);
+}
+
+/* Main routine. {val} is the input from the nav bar, {msg} the initial search value. */
+function navFilterExtension(val, msg) {
+	/* If search char is included, apply logic. */
+    if (val.endsWith(searchChar)) {
+        var searchValue = val.replace(searchChar, '');
+
+        clearButton.click(); // clear search value
+        addListenerRemoveSearchParentOnClearFilterButton(); // make sure that moving forward we will remove parent on clear as well
+
+        setSearchParent(searchValue);
+		applySearchParentFilter();
+
+        return true;
+    }
+	
+	/* Make sure we show all modules if no search parent. */
+    if (!window.searchParent) {
+        showAllModules();
+        return false;
+    }
+
+    /* If parent exists, apply filter based on current value. */
+    applySearchParentFilter();
+
+    return false;
+}]]></script>
+        <script_name/>
+        <sys_class_name>sys_ui_script</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_created_on>2022-01-21 08:46:40</sys_created_on>
+        <sys_id>1ddabc37870d8510a68f40c80cbb35a3</sys_id>
+        <sys_mod_count>0</sys_mod_count>
+        <sys_name>NavFilterExtension</sys_name>
+        <sys_package display_value="Nested Navigator Search" source="e32a3037870d8510a68f40c80cbb35f8">e32a3037870d8510a68f40c80cbb35f8</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="Nested Navigator Search">e32a3037870d8510a68f40c80cbb35f8</sys_scope>
+        <sys_update_name>sys_ui_script_1ddabc37870d8510a68f40c80cbb35a3</sys_update_name>
+        <sys_updated_by>admin</sys_updated_by>
+        <sys_updated_on>2022-01-21 08:46:40</sys_updated_on>
+        <ui_type>0</ui_type>
+        <use_scoped_format>false</use_scoped_format>
+    </sys_ui_script>
+</record_update>
